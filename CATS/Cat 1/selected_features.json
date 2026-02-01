@@ -1,1 +1,1 @@
-["BasePolicy", "Fault", "VehicleCategory", "VehiclePrice", "PolicyType"]
+["BasePolicy", "Fault", "VehicleCategory", "VehiclePrice", "PolicyType", "Non_Standard_Deductible", "High_Deductible", "Week_Timing_Gap"]
