@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+import json
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parent
+NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
+
+nb5_cells = [
+    {"cell_type": "markdown", "metadata": {}, "source": [
+        "# Notebook 5: KMeans Topic Modeling\n",
+        "\n",
+        "## 1. Introduction\n",
+        "\n",
+        "### 1.1 Objective\n",
+        "Discover latent thematic domains in Kiswahili transcriptions using unsupervised clustering.\n",
+        "\n",
+        "### 1.2 Mathematical Foundation\n",
+        "\n",
+        "**KMeans Objective:**\n",
+        "$$\\min_{C} \\sum_{i=1}^{k} \\sum_{x \\in C_i} ||x - \\mu_i||^2$$\n",
+        "\n",
+        "Where:\n",
+        "- $C_i$: Cluster $i$\n",
+        "- $\\mu_i$: Centroid of cluster $i$\n",
+        "\n",
+        "**Silhouette Score:**\n",
+        "$$s(i) = \\frac{b(i) - a(i)}{\\max(a(i), b(i))}$$\n",
+        "\n",
+        "Where:\n",
+        "- $a(i)$: Mean intra-cluster distance\n",
+        "- $b(i)$: Mean nearest-cluster distance\n",
+        "\n",
+        "---"
+    ]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "from pathlib import Path\n",
+        "\n",
+        "from sklearn.feature_extraction.text import TfidfVectorizer\n",
+        "from sklearn.cluster import KMeans\n",
+        "from sklearn.decomposition import PCA\n",
+        "from sklearn.metrics import silhouette_score\n",
+        "import umap\n",
+        "\n",
+        "import warnings\n",
+        "warnings.filterwarnings('ignore')\n",
+        "\n",
+        "SEED = 42\n",
+        "np.random.seed(SEED)"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 2. Load Data"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "PROJECT_ROOT = Path.cwd().parent\n",
+        "DATA_DIR = PROJECT_ROOT / 'data'\n",
+        "\n",
+        "df = pd.read_csv(DATA_DIR / 'train.csv')\n",
+        "df = df.dropna(subset=['sentence']).head(2000)\n",
+        "print(f\"Working with {len(df)} samples\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 3. Text Preprocessing"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "# Kiswahili stopwords\n",
+        "swahili_stopwords = ['na', 'ya', 'wa', 'ni', 'kwa', 'la', 'za', 'katika', 'au', 'kama']\n",
+        "\n",
+        "def preprocess_text(text):\n",
+        "    text = text.lower().strip()\n",
+        "    return text\n",
+        "\n",
+        "df['sentence_clean'] = df['sentence'].apply(preprocess_text)\n",
+        "print(\"Text preprocessing complete.\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 4. TF-IDF Vectorization"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "vectorizer = TfidfVectorizer(\n",
+        "    max_features=500,\n",
+        "    stop_words=swahili_stopwords,\n",
+        "    ngram_range=(1, 2),\n",
+        "    min_df=2\n",
+        ")\n",
+        "\n",
+        "X_tfidf = vectorizer.fit_transform(df['sentence_clean'])\n",
+        "print(f\"TF-IDF matrix shape: {X_tfidf.shape}\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 5. Elbow Method for Optimal K"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "inertias = []\n",
+        "K_range = range(2, 11)\n",
+        "\n",
+        "for k in K_range:\n",
+        "    kmeans = KMeans(n_clusters=k, random_state=SEED, n_init=10)\n",
+        "    kmeans.fit(X_tfidf)\n",
+        "    inertias.append(kmeans.inertia_)\n",
+        "\n",
+        "plt.figure(figsize=(10, 6))\n",
+        "plt.plot(K_range, inertias, 'bo-')\n",
+        "plt.xlabel('Number of Clusters (k)')\n",
+        "plt.ylabel('Inertia')\n",
+        "plt.title('Elbow Method for Optimal K')\n",
+        "plt.grid(True)\n",
+        "plt.show()"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 6. Silhouette Analysis"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "silhouette_scores = []\n",
+        "\n",
+        "for k in K_range:\n",
+        "    kmeans = KMeans(n_clusters=k, random_state=SEED, n_init=10)\n",
+        "    labels = kmeans.fit_predict(X_tfidf)\n",
+        "    score = silhouette_score(X_tfidf, labels)\n",
+        "    silhouette_scores.append(score)\n",
+        "\n",
+        "plt.figure(figsize=(10, 6))\n",
+        "plt.plot(K_range, silhouette_scores, 'ro-')\n",
+        "plt.xlabel('Number of Clusters (k)')\n",
+        "plt.ylabel('Silhouette Score')\n",
+        "plt.title('Silhouette Analysis')\n",
+        "plt.grid(True)\n",
+        "plt.show()\n",
+        "\n",
+        "optimal_k = K_range[np.argmax(silhouette_scores)]\n",
+        "print(f\"Optimal K: {optimal_k}\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 7. Final KMeans Clustering"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "kmeans_final = KMeans(n_clusters=optimal_k, random_state=SEED, n_init=10)\n",
+        "df['cluster'] = kmeans_final.fit_predict(X_tfidf)\n",
+        "\n",
+        "print(f\"Cluster distribution:\\n{df['cluster'].value_counts().sort_index()}\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 8. Dimensionality Reduction with PCA"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "pca = PCA(n_components=2, random_state=SEED)\n",
+        "X_pca = pca.fit_transform(X_tfidf.toarray())\n",
+        "\n",
+        "plt.figure(figsize=(12, 8))\n",
+        "scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=df['cluster'], cmap='viridis', alpha=0.6)\n",
+        "plt.colorbar(scatter)\n",
+        "plt.xlabel('PC1')\n",
+        "plt.ylabel('PC2')\n",
+        "plt.title('KMeans Clusters (PCA Projection)')\n",
+        "plt.grid(True)\n",
+        "plt.show()"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 9. Top Terms per Cluster"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "feature_names = vectorizer.get_feature_names_out()\n",
+        "centroids = kmeans_final.cluster_centers_\n",
+        "\n",
+        "print(\"Top 10 terms per cluster:\\n\")\n",
+        "for i, centroid in enumerate(centroids):\n",
+        "    top_indices = centroid.argsort()[-10:][::-1]\n",
+        "    top_terms = [feature_names[idx] for idx in top_indices]\n",
+        "    print(f\"Cluster {i}: {', '.join(top_terms)}\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": ["## 10. Save Results"]},
+    {"cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [], "source": [
+        "df.to_csv(DATA_DIR / 'clustered_data.csv', index=False)\n",
+        "print(\"Clustered data saved.\")"
+    ]},
+    {"cell_type": "markdown", "metadata": {}, "source": [
+        "## 11. Conclusion\n",
+        "\n",
+        "### Key Findings:\n",
+        "1. ✅ Identified optimal number of clusters using elbow method and silhouette analysis\n",
+        "2. ✅ Discovered latent thematic domains in Kiswahili text\n",
+        "3. ✅ Visualized clusters in reduced dimensional space\n",
+        "4. ✅ Extracted interpretable topic keywords\n",
+        "\n",
+        "### Implications:\n",
+        "- Topic diversity informs sentiment model generalizability\n",
+        "- Cluster-specific models may improve performance\n",
+        "\n",
+        "### Next Steps:\n",
+        "Proceed to **Notebook 6**: Model Optimization (Quantization & Distillation)"
+    ]}
+]
+
+nb5 = {
+    "cells": nb5_cells,
+    "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+with open(NOTEBOOKS_DIR / "05_KMeans_Topic_Modelling.ipynb", "w") as f:
+    json.dump(nb5, f, indent=2)
+print("✓ Notebook 5 created")
