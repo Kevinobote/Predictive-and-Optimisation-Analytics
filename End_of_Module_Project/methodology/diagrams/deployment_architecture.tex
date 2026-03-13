@@ -1,0 +1,131 @@
+\begin{tikzpicture}[
+    server/.style={
+        rectangle, draw=codepurple, line width=0.9pt, fill=backcolour,
+        text width=3.2cm, text centered, rounded corners=5pt,
+        minimum width=3.4cm, minimum height=1.3cm, font=\small\sffamily
+    },
+    service/.style={
+        rectangle, draw=codegreen, line width=0.8pt, fill=backcolour,
+        text width=3.0cm, text centered, rounded corners=4pt,
+        minimum width=3.2cm, minimum height=1.1cm, font=\small\sffamily
+    },
+    storage/.style={
+        cylinder, draw=codepurple, line width=0.8pt, fill=backcolour,
+        text width=2.6cm, text centered,
+        minimum width=2.8cm, minimum height=1.1cm,
+        shape border rotate=90, aspect=0.15, font=\small\sffamily
+    },
+    monitor/.style={
+        rectangle, draw=codegray, line width=0.7pt, fill=backcolour,
+        text width=2.4cm, text centered, rounded corners=3pt,
+        minimum width=2.6cm, minimum height=1.0cm,
+        font=\small\sffamily, dashed
+    },
+    arrow/.style={
+        -{Stealth[length=6pt,width=4pt]}, line width=1.0pt, color=codegray
+    },
+    monarrow/.style={
+        -{Stealth[length=5pt,width=3.5pt]}, line width=0.8pt,
+        dashed, dash pattern=on 4pt off 2.5pt, color=codegray
+    }
+]
+
+%% ── All nodes placed on a grid, tightly controlled ───────────────────────────
+
+%% Entry
+\node[font=\small\bfseries, color=black, align=center]
+    (internet) at (4.0, 0) {Internet\\{\scriptsize\color{codegray}Port 8000}};
+
+%% Web server
+\node[server] (web_server) at (4.0, -3.0) {Web Server\\{\scriptsize Uvicorn}};
+
+%% App + Static — left/right of web server
+\node[service] (app)    at (1.0, -6.5)  {FastAPI\\Application};
+\node[service] (static) at (7.0, -6.5)  {Static Files};
+
+%% Storage — below app
+\node[storage] (models) at (-0.5, -10.0) {ML Models};
+\node[storage] (logs)   at ( 2.5, -10.0) {Logs};
+
+%% Compute
+\node[server] (compute) at (1.0, -13.5) {Compute\\{\scriptsize CPU\,/\,GPU}};
+
+%% Monitoring — stacked below static, inside container
+\node[monitor] (health)  at (7.0, -10.0) {Health Check};
+\node[monitor] (metrics) at (7.0, -12.0) {Metrics};
+
+%% PyTorch annotation
+\node[font=\scriptsize\sffamily, color=codegray, align=center, text width=3cm]
+    (pytorchlbl) at (1.0, -15.2) {PyTorch inference};
+
+%% ── Monitoring sub-panel ─────────────────────────────────────────────────────
+\node[
+    draw=codegray, dashed, dash pattern=on 4pt off 2pt,
+    line width=0.6pt, rounded corners=5pt,
+    fit=(health)(metrics),
+    inner sep=0.5cm,
+    label={[font=\scriptsize\bfseries, color=codegray] above:Monitoring}
+] (monpanel) {};
+
+%% ── Deployment container ─────────────────────────────────────────────────────
+\node[
+    draw=codepurple, dashed, dash pattern=on 6pt off 3pt,
+    line width=0.9pt, rounded corners=10pt,
+    fit=(web_server)(app)(static)(models)(logs)(compute)(pytorchlbl)(monpanel),
+    inner xsep=1.0cm, inner ysep=1.0cm,
+    label={[font=\normalsize\bfseries, color=codepurple] above:Deployment Container}
+] (container) {};
+
+%% ── Legend — placed INSIDE boundary using absolute coords ────────────────────
+%% Put it bottom-right inside container, below static/monitoring column
+\node[draw=codegray, fill=backcolour, rounded corners=4pt,
+      line width=0.6pt, inner sep=7pt]
+    (legend) at (7.5, -15.8) {%
+    \begin{tikzpicture}[
+        a/.style={-{Stealth[length=5pt,width=3.5pt]}, line width=0.9pt, color=codegray},
+        m/.style={-{Stealth[length=5pt,width=3.5pt]}, line width=0.8pt,
+                  dashed, dash pattern=on 4pt off 2.5pt, color=codegray}
+    ]
+        \node[font=\small\bfseries, color=black, anchor=west] at (0,2.7cm) {Legend};
+        \draw[codegray, line width=0.5pt] (0,2.52cm) -- (4.4cm,2.52cm);
+        \draw[draw=codepurple,line width=0.9pt,fill=backcolour,rounded corners=3pt]
+            (0,1.75cm) rectangle (0.7cm,2.2cm);
+        \node[right,font=\scriptsize\sffamily,color=codepurple] at (0.85cm,1.97cm) {Server / Compute};
+        \draw[draw=codegreen,line width=0.8pt,fill=backcolour,rounded corners=3pt]
+            (0,1.08cm) rectangle (0.7cm,1.52cm);
+        \node[right,font=\scriptsize\sffamily,color=codegreen]  at (0.85cm,1.3cm)  {Service};
+        \draw[draw=codepurple,line width=0.8pt,fill=backcolour]
+            (0,0.42cm) rectangle (0.7cm,0.86cm);
+        \node[right,font=\scriptsize\sffamily,color=codepurple] at (0.85cm,0.64cm) {Storage};
+        \draw[a,shorten >=0pt,shorten <=0pt] (0,0.18cm) -- (0.7cm,0.18cm);
+        \node[right,font=\scriptsize\sffamily,color=codegray]   at (0.85cm,0.18cm) {Data flow};
+        \draw[m,shorten >=0pt,shorten <=0pt] (0,-0.18cm) -- (0.7cm,-0.18cm);
+        \node[right,font=\scriptsize\sffamily,color=codegray]   at (0.85cm,-0.18cm){Monitoring};
+    \end{tikzpicture}%
+};
+
+%% ── Outer boundary — fit includes ALL nodes and legend ───────────────────────
+\node[
+    draw=codegray, dashed, dash pattern=on 7pt off 3pt,
+    line width=0.7pt, rounded corners=12pt,
+    fit=(internet)(container)(legend),
+    inner xsep=1.2cm, inner ysep=1.4cm,
+    label={[font=\large\bfseries, color=black] above:System Architecture}
+] (boundary) {};
+
+%% ── Arrows (drawn after boundary so they appear on top) ──────────────────────
+\draw[arrow] (internet)   -- (web_server);
+\draw[arrow] (web_server) -| (app);
+\draw[arrow] (web_server) -| (static);
+%% app.south -> down to y=-8.5 -> left/right to models/logs
+\draw[arrow] (app.south) -- ++(0,-1.2) -| (models.north);
+\draw[arrow] (app.south) -- ++(0,-1.2) -| (logs.north);
+\draw[arrow] (models)     -- (compute);
+\draw[arrow] (logs)       -- (compute);
+%% web_server -> health: exit east, enter health from west (same row)
+\draw[monarrow] (web_server.east) -- ++(1.2,0) |- (health.west);
+%% app -> metrics: exit east, travel right staying below health, enter metrics west
+\draw[monarrow] (app.east) -- ++(1.2,0) |- (metrics.west);
+\draw[codegray, line width=0.4pt, dashed] (health.south) -- (metrics.north);
+
+\end{tikzpicture}

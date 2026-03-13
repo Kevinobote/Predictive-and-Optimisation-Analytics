@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiswahili Speech Analytics</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+        input[type="file"] { display: none; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn.recording {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .record-area {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .record-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        .record-time {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            display: none;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .result-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .result-value {
+            color: #333;
+            line-height: 1.6;
+        }
+        .sentiment {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .sentiment.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+        .sentiment.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .file-name {
+            margin-top: 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Kiswahili Speech Analytics</h1>
+        <p class="subtitle">Upload audio or record live to get transcription, sentiment analysis, and summary</p>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('upload')">📁 Upload Audio</button>
+            <button class="tab" onclick="switchTab('record')">🎙️ Record Live</button>
+        </div>
+        
+        <!-- Upload Tab -->
+        <div id="uploadTab" class="tab-content active">
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 3em; margin-bottom: 10px;">📁</p>
+                <p style="font-size: 1.2em; color: #667eea; margin-bottom: 10px;">
+                    Click to upload or drag and drop
+                </p>
+                <p style="color: #999;">WAV, MP3, or other audio formats</p>
+                <div class="file-name" id="fileName"></div>
+            </div>
+            
+            <input type="file" id="fileInput" accept="audio/*">
+            <button class="btn" id="analyzeBtn" disabled>Analyze Audio</button>
+        </div>
+        
+        <!-- Record Tab -->
+        <div id="recordTab" class="tab-content">
+            <div class="record-area">
+                <div class="record-icon" id="recordIcon">🎙️</div>
+                <div class="record-time" id="recordTime">00:00</div>
+                <p style="color: #666; margin-bottom: 20px;" id="recordStatus">Click below to start recording</p>
+            </div>
+            <button class="btn" id="recordBtn" onclick="toggleRecording()">Start Recording</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #667eea;">Processing audio...</p>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="result-item">
+                <div class="result-label">📝 Transcription</div>
+                <div class="result-value" id="transcription"></div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">😊 Sentiment</div>
+                <div class="result-value">
+                    <span class="sentiment" id="sentiment"></span>
+                    <span id="confidence"></span>
+                </div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-label">📋 Summary</div>
+                <div class="result-value" id="summary"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="duration">-</div>
+                    <div class="stat-label">Duration (sec)</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="latency">-</div>
+                    <div class="stat-label">Processing (ms)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const fileName = document.getElementById('fileName');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        let selectedFile = null;
+        
+        // Recording variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordingInterval;
+        let recordingSeconds = 0;
+        let isRecording = false;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'upload') {
+                document.querySelector('.tab:first-child').classList.add('active');
+                document.getElementById('uploadTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:last-child').classList.add('active');
+                document.getElementById('recordTab').classList.add('active');
+            }
+            
+            results.style.display = 'none';
+        }
+
+        // Upload functionality
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = `Selected: ${file.name}`;
+            analyzeBtn.disabled = false;
+        }
+        
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            await analyzeAudio(selectedFile);
+        });
+        
+        // Recording functionality
+        async function toggleRecording() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+        
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                recordingSeconds = 0;
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+                    await analyzeAudio(audioFile);
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                
+                document.getElementById('recordBtn').textContent = 'Stop Recording';
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordIcon').textContent = '🔴';
+                document.getElementById('recordStatus').textContent = 'Recording in progress...';
+                
+                recordingInterval = setInterval(() => {
+                    recordingSeconds++;
+                    const mins = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+                    const secs = (recordingSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('recordTime').textContent = `${mins}:${secs}`;
+                }, 1000);
+                
+            } catch (error) {
+                alert('Error accessing microphone: ' + error.message);
+            }
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                
+                clearInterval(recordingInterval);
+                
+                document.getElementById('recordBtn').textContent = 'Start Recording';
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordIcon').textContent = '🎙️';
+                document.getElementById('recordStatus').textContent = 'Processing recording...';
+            }
+        }
+        
+        async function analyzeAudio(file) {
+            analyzeBtn.disabled = true;
+            document.getElementById('recordBtn').disabled = true;
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('http://localhost:8000/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Analysis failed');
+                
+                const data = await response.json();
+                await displayResults(data);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+                document.getElementById('recordBtn').disabled = false;
+                document.getElementById('recordTime').textContent = '00:00';
+                document.getElementById('recordStatus').textContent = 'Click below to start recording';
+            }
+        }
+        
+        async function displayResults(data) {
+            document.getElementById('transcription').textContent = data.transcription;
+            
+            const sentimentEl = document.getElementById('sentiment');
+            sentimentEl.textContent = data.sentiment.label.toUpperCase();
+            sentimentEl.className = `sentiment ${data.sentiment.label}`;
+            
+            document.getElementById('confidence').textContent = 
+                ` (${(data.sentiment.confidence * 100).toFixed(1)}% confidence)`;
+            
+            document.getElementById('summary').textContent = data.summary;
+            document.getElementById('duration').textContent = data.audio_duration_sec.toFixed(2);
+            document.getElementById('latency').textContent = data.latency_ms.toFixed(0);
+            
+            results.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+\begin{tikzpicture}[
+    box/.style={
+        rectangle,
+        draw=codepurple,
+        line width=0.8pt,
+        fill=backcolour,
+        text width=3.0cm,
+        text centered,
+        rounded corners=4pt,
+        minimum height=1.15cm,
+        font=\small\sffamily
+    },
+    arrow/.style={
+        -{Stealth[length=6pt, width=4pt]},
+        line width=1.0pt,
+        color=codegreen
+    },
+    fbarrow/.style={
+        -{Stealth[length=6pt, width=4pt]},
+        line width=0.9pt,
+        dashed,
+        dash pattern=on 4pt off 2.5pt,
+        color=codepurple
+    }
+]
+
+\node[box] (req)     at (90:4.2cm)   {Requirements\\Analysis};
+\node[box] (design)  at (30:4.2cm)   {Design \&\\Architecture};
+\node[box] (impl)    at (-30:4.2cm)  {Implementation};
+\node[box] (test)    at (-90:4.2cm)  {Testing \&\\Validation};
+\node[box] (iterate) at (-150:4.2cm) {Iterate \&\\Refine};
+\node[box] (eval)    at (150:4.2cm)  {Evaluation};
+
+\draw[arrow] (req)     -- (design);
+\draw[arrow] (design)  -- (impl);
+\draw[arrow] (impl)    -- (test);
+\draw[arrow] (test)    -- (iterate);
+\draw[arrow] (iterate) -- (eval);
+\draw[arrow] (eval)    -- (req);
+
+\draw[fbarrow] (test) to[bend right=28] (design);
+\draw[fbarrow] (eval) to[bend left=28]  (impl);
+
+\node[
+    draw=codegray,
+    dashed,
+    dash pattern=on 5pt off 3pt,
+    line width=0.7pt,
+    rounded corners=6pt,
+    fit=(req)(design)(impl)(test)(iterate)(eval),
+    inner sep=1.1cm,
+    label={[font=\normalsize\sffamily\bfseries, color=black]above:Sprint Cycle}
+] (boundary) {};
+
+\begin{scope}[shift={($(boundary.south west)+(0.55cm,0.45cm)$)}]
+    \draw[arrow, shorten >=0pt, shorten <=0pt] (0,0.35cm) -- (0.7cm,0.35cm);
+    \node[right, font=\scriptsize\sffamily, color=codegreen] at (0.75cm,0.35cm) {Process flow};
+    \draw[fbarrow, shorten >=0pt, shorten <=0pt] (0,0) -- (0.7cm,0);
+    \node[right, font=\scriptsize\sffamily, color=codepurple] at (0.75cm,0) {Feedback loop};
+\end{scope}
+
+\end{tikzpicture}

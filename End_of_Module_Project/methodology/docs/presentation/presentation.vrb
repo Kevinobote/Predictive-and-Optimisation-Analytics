@@ -1,0 +1,34 @@
+\frametitle{Model Pipeline Example}
+\begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{blue}, commentstyle=\color{gray}, stringstyle=\color{red}]
+# Modular pipeline design
+class AudioPipeline:
+    def __init__(self):
+        self.asr_model = load_asr_model()
+        self.sentiment_model = load_sentiment_model()
+        self.summarizer = load_summarizer()
+
+    def process(self, audio_path: str) -> Dict[str, Any]:
+        # ASR transcription
+        transcript = self.asr_model.transcribe(audio_path)
+
+        # Sentiment analysis
+        sentiment = self.sentiment_model.predict(transcript)
+
+        # Summarization (if needed)
+        summary = self.summarizer.generate(transcript)
+                  if len(transcript) > 30 else transcript[:30]
+
+        return {
+            "transcript": transcript,
+            "sentiment": sentiment,
+            "summary": summary
+        }
+\end{lstlisting}
+
+\begin{block}{Design Principles}
+\begin{itemize}
+    \item Modular components for easy testing
+    \item Clear separation of concerns
+    \item Extensible architecture
+\end{itemize}
+\end{block}

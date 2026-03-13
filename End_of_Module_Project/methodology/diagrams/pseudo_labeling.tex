@@ -1,0 +1,107 @@
+\begin{tikzpicture}[
+    box/.style={
+        rectangle, draw=codepurple, line width=1.0pt, fill=backcolour,
+        text width=3.0cm, text centered, rounded corners=5pt,
+        minimum width=3.2cm, minimum height=1.0cm, font=\small\sffamily
+    },
+    data/.style={
+        cylinder, draw=codegreen, line width=1.0pt, fill=backcolour,
+        text width=2.5cm, text centered,
+        minimum width=2.7cm, minimum height=0.9cm,
+        shape border rotate=90, aspect=0.15,
+        font=\small\sffamily
+    },
+    arrow/.style={
+        -{Stealth[length=6pt,width=4pt]}, line width=1.0pt, color=codegray
+    },
+    byarrow/.style={
+        -{Stealth[length=6pt,width=4pt]}, line width=1.0pt,
+        dashed, dash pattern=on 4pt off 2pt, color=codepurple
+    },
+    lbl/.style={font=\scriptsize\sffamily, color=codegray, inner sep=2pt}
+]
+
+%% ── Spine at x=5 — leaves room left for arc, right for annotations ───────────
+\node[data] (kiswahili)    at (5,   0)   {Kiswahili Text\\{\scriptsize\itshape Unlabeled}};
+\node[box]  (translate)    at (5,  -2.8) {Translation\\{\scriptsize NLLB-200-600M}};
+\node[data] (english)      at (5,  -5.6) {English Text};
+\node[box]  (sentiment_en) at (5,  -8.4) {Sentiment\\Classifier};
+\node[data] (labels)       at (5, -11.2) {Labels\\{\scriptsize Pos\,/\,Neg}};
+\node[box]  (combine)      at (5, -14.0) {Combine Data};
+\node[data] (labeled_data) at (5, -16.8) {Labeled Dataset};
+
+%% ── Main flow ────────────────────────────────────────────────────────────────
+\draw[arrow] (kiswahili)    -- (translate);
+\draw[arrow] (translate)    -- node[lbl, right, xshift=5pt] {sw\,$\rightarrow$\,en} (english);
+\draw[arrow] (english)      -- (sentiment_en);
+\draw[arrow] (sentiment_en) -- (labels);
+\draw[arrow] (labels)       -- (combine);
+\draw[arrow] (combine)      -- (labeled_data);
+
+%% ── Bypass arc: exits left, swings to x=1.5, re-enters combine.west ─────────
+%% The arc midpoint is at roughly (1.5,-7). 
+%% Place an invisible node there so fit= captures it.
+\node[inner sep=0pt, outer sep=0pt] (arcanchor) at (1.5, -7.0) {};
+\draw[byarrow]
+    (kiswahili.west)
+    .. controls (1.5, 0) and (1.5, -14.0) ..
+    (combine.west);
+%% Label sits to the RIGHT of the arc so it is between arc and spine
+\node[font=\scriptsize\sffamily, color=codepurple, anchor=west]
+    (origlabel) at (2.0, -7.0) {original};
+
+%% ── Annotations: right side at x=11 ─────────────────────────────────────────
+\node[draw=codegray, fill=white, rounded corners=3pt, line width=0.5pt,
+      font=\scriptsize\sffamily, text width=2.5cm, align=left, inner sep=4pt]
+    (a1) at (10.5, -2.8)  {Translate source\\text to English};
+
+\node[draw=codegray, fill=white, rounded corners=3pt, line width=0.5pt,
+      font=\scriptsize\sffamily, text width=2.5cm, align=left, inner sep=4pt]
+    (a2) at (10.5, -8.4) {Pre-trained English\\sentiment model};
+
+\node[draw=codegray, fill=white, rounded corners=3pt, line width=0.5pt,
+      font=\scriptsize\sffamily, text width=2.5cm, align=left, inner sep=4pt]
+    (a3) at (10.5, -14.0) {Map predicted labels\\back to source text};
+
+\draw[codegray, line width=0.6pt] (translate.east)    -- (a1.west);
+\draw[codegray, line width=0.6pt] (sentiment_en.east) -- (a2.west);
+\draw[codegray, line width=0.6pt] (combine.east)      -- (a3.west);
+
+%% ── Legend box ───────────────────────────────────────────────────────────────
+\node[draw=codegray, fill=backcolour, rounded corners=3pt, line width=0.5pt,
+      inner sep=6pt, anchor=south east]
+    (legend) at (12.5, -19.0) {%
+    \begin{tikzpicture}[
+        arrow/.style={-{Stealth[length=5pt,width=3pt]}, line width=0.8pt, color=codegray},
+        byarrow/.style={-{Stealth[length=5pt,width=3pt]}, line width=0.8pt,
+                        dashed, dash pattern=on 3pt off 2pt, color=codepurple}
+    ]
+        \node[font=\small\bfseries, color=black, anchor=west] at (0, 2.0cm) {Legend};
+        \draw[codegray, line width=0.4pt] (0, 1.85cm) -- (3.5cm, 1.85cm);
+        \draw[draw=codepurple, line width=0.8pt, fill=backcolour, rounded corners=2pt]
+            (0,1.2cm) rectangle (0.6cm,1.6cm);
+        \node[right, font=\scriptsize\sffamily, color=codepurple] at (0.7cm,1.4cm) {Process node};
+        \draw[draw=codegreen, line width=0.8pt, fill=backcolour]
+            (0,0.65cm) rectangle (0.6cm,1.0cm);
+        \node[right, font=\scriptsize\sffamily, color=codegreen]  at (0.7cm,0.82cm) {Data store};
+        \draw[arrow, shorten >=0pt, shorten <=0pt] (0,0.35cm) -- (0.6cm,0.35cm);
+        \node[right, font=\scriptsize\sffamily, color=codegray]   at (0.7cm,0.35cm) {Process flow};
+        \draw[byarrow, shorten >=0pt, shorten <=0pt] (0,0) -- (0.6cm,0);
+        \node[right, font=\scriptsize\sffamily, color=codepurple] at (0.7cm,0)      {Passthrough};
+    \end{tikzpicture}%
+};
+
+%% ── Outer boundary — includes arc anchor and label so nothing escapes ─────────
+\node[
+    draw=codegray, dashed, dash pattern=on 5pt off 2pt,
+    line width=0.7pt, rounded corners=8pt,
+    fit=(kiswahili)(translate)(english)(sentiment_en)
+        (labels)(combine)(labeled_data)
+        (a1)(a2)(a3)(legend)(arcanchor)(origlabel),
+    inner xsep=1.0cm,
+    inner ysep=1.2cm,
+    label={[font=\normalsize\sffamily\bfseries, color=black]
+           above:Kiswahili Sentiment Labelling Pipeline}
+] (boundary) {};
+
+\end{tikzpicture}

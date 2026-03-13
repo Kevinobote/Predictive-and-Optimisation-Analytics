@@ -1,0 +1,93 @@
+\begin{tikzpicture}[
+    process/.style={
+        rectangle,
+        draw=codepurple, line width=0.8pt, fill=backcolour,
+        text width=2.5cm, text centered, rounded corners=4pt,
+        minimum height=0.9cm, font=\small\sffamily
+    },
+    %% aspect=0.12 keeps end-caps very thin so the cylinder stays compact
+    data/.style={
+        cylinder,
+        draw=codegreen, line width=0.8pt, fill=backcolour,
+        text width=2.5cm, text centered,
+        minimum width=2.8cm, minimum height=0.9cm,
+        shape border rotate=90, aspect=0.12,
+        font=\small\sffamily
+    },
+    decision/.style={
+        diamond,
+        draw=codegray, line width=0.8pt, fill=backcolour,
+        text width=1.8cm, text centered,
+        aspect=2.5, font=\scriptsize\sffamily, inner sep=2pt
+    },
+    arrow/.style={
+        -{Stealth[length=5pt, width=4pt]},
+        line width=0.9pt, color=codegray
+    },
+    lbl/.style={font=\scriptsize\sffamily, color=codegray, inner sep=2pt}
+]
+ 
+%% ── Vertical spine ───────────────────────────────────────────────────────────
+\node[data]     (input)        at (0,  0)    {Audio Input};
+\node[process]  (preprocess)   at (0, -1.8)  {Audio\\Preprocessing};
+\node[process]  (asr)          at (0, -3.6)  {ASR Model\\(Wav2Vec2)};
+\node[data]     (transcript)   at (0, -5.4)  {Transcription};
+\node[process]  (sentiment)    at (0, -7.2)  {Sentiment\\Analysis};
+\node[decision] (length_check) at (0, -9.4)  {Length\\$> 30$?};
+ 
+%% Branch nodes
+\node[process]  (summarize)    at (-3.5, -12.2) {Generate\\Summary};
+\node[process]  (truncate)     at ( 3.5, -12.2) {Truncate\\Text};
+ 
+%% Final output
+\node[data]     (output)       at (0, -15.0) {Final Output\\(JSON)};
+ 
+%% ── Arrows ───────────────────────────────────────────────────────────────────
+\draw[arrow] (input)        -- (preprocess);
+\draw[arrow] (preprocess)   -- node[lbl, right, xshift=2pt] {16\,kHz} (asr);
+\draw[arrow] (asr)          -- (transcript);
+\draw[arrow] (transcript)   -- (sentiment);
+\draw[arrow] (sentiment)    -- node[lbl, right, xshift=2pt] {Score} (length_check);
+ 
+\draw[arrow] (length_check) -- node[lbl, above left]  {Yes} (summarize);
+\draw[arrow] (length_check) -- node[lbl, above right] {No}  (truncate);
+ 
+\draw[arrow] (summarize) |- (output);
+\draw[arrow] (truncate)  |- (output);
+ 
+%% ── Context labels ───────────────────────────────────────────────────────────
+\node[font=\small\sffamily, color=codepurple, above=0.3cm of input,
+      text width=4.5cm, align=center] {User Upload/Recording};
+ 
+\node[font=\small\sffamily, color=codepurple, below=0.4cm of output,
+      text width=3.5cm, align=center] (apilbl) {API Response};
+ 
+%% ── Outer boundary ───────────────────────────────────────────────────────────
+\node[
+    draw=codegray, dashed, dash pattern=on 4pt off 2pt,
+    line width=0.7pt, rounded corners=6pt,
+    fit=(input)(preprocess)(asr)(transcript)(sentiment)
+        (length_check)(summarize)(truncate)(output),
+    inner sep=0.9cm,
+    label={[font=\normalsize\sffamily\bfseries, color=black]
+           above:Audio Processing Pipeline}
+] (boundary) {};
+ 
+%% ── Legend ───────────────────────────────────────────────────────────────────
+\begin{scope}[shift={($(boundary.south west)+(0.4cm,0.4cm)$)}]
+    \draw[draw=codepurple, line width=0.7pt, fill=backcolour, rounded corners=2pt]
+        (0,0.75cm) rectangle (0.5cm,1.1cm);
+    \node[right, font=\scriptsize\sffamily, color=codepurple]
+        at (0.6cm,0.92cm) {Process};
+ 
+    \draw[draw=codegreen, line width=0.7pt, fill=backcolour]
+        (0,0.3cm) rectangle (0.5cm,0.6cm);
+    \node[right, font=\scriptsize\sffamily, color=codegreen]
+        at (0.6cm,0.45cm) {Data store};
+ 
+    \draw[arrow, shorten >=0pt, shorten <=0pt] (0,0) -- (0.5cm,0);
+    \node[right, font=\scriptsize\sffamily, color=codegray]
+        at (0.6cm,0) {Flow};
+\end{scope}
+ 
+\end{tikzpicture}

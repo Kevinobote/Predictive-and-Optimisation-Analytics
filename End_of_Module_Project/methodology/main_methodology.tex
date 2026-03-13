@@ -1,0 +1,646 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc, shadows}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage[margin=1in]{geometry}
+
+% Define colors for code listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%% ── Dissertation-appropriate colour definitions (keeping original blue!20) ──
+\definecolor{nodeblue}{rgb}{0.678,0.847,0.902}   % blue!20 equivalent
+\definecolor{nodeborder}{rgb}{0.0,0.447,0.698}   % professional deep blue border
+\definecolor{arrowgrey}{rgb}{0.2,0.2,0.2}        % near-black for main arrows
+\definecolor{feedbackred}{rgb}{0.72,0.11,0.11}   % deep academic red
+\definecolor{borderbox}{rgb}{0.3,0.3,0.3}        % outer dashed border
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\begin{document}
+
+\chapter{Methodology}
+
+\section{Introduction}
+This chapter presents the comprehensive methodology employed in developing the Kiswahili Speech Analytics System. The methodology aligns with the research objectives outlined in Chapter 1, specifically addressing: (1) the development of an automated speech recognition (ASR) system for Kiswahili, (2) sentiment analysis of transcribed speech, and (3) deployment of a production-ready system for real-time audio processing.
+
+The research adopts a software engineering approach combined with machine learning experimentation methodologies. This chapter details the systematic process followed from problem analysis through system deployment, including data preparation, model development, system architecture design, implementation, testing, and validation.
+
+\section{Research Design}
+\subsection{Overall Approach}
+This research follows an applied research design with a focus on system development and empirical evaluation. The methodology integrates:
+
+\begin{itemize}
+    \item \textbf{Experimental Research}: For model training, evaluation, and optimization
+    \item \textbf{Software Development Methodology}: Agile iterative approach for system implementation
+    \item \textbf{Design Science Research}: Creating and evaluating artifacts (models and system)
+\end{itemize}
+
+The research questions stated in Chapter 1 are addressed through a combination of literature review (partially answering theoretical questions) and empirical system development (answering practical implementation questions).
+
+\subsection{Software Development Methodology}
+The project adopts an \textbf{Agile Development Methodology} with iterative cycles, allowing for continuous refinement based on model performance and system requirements. The choice of Agile is justified by:
+
+\begin{itemize}
+    \item Flexibility to adapt to model performance results
+    \item Iterative improvement of machine learning models
+    \item Rapid prototyping and testing capabilities
+    \item Continuous integration of new features
+\end{itemize}
+
+Figure \ref{fig:agile_process} illustrates the iterative development process followed in this research.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/agile_process.tex}
+    \caption{Agile Development Process for ML System}
+    \label{fig:agile_process}
+\end{figure}
+
+\section{System Analysis}
+\subsection{Requirements Analysis}
+The system requirements were derived from the research objectives and analysis of existing speech analytics systems. The requirements gathering process involved:
+
+\begin{enumerate}
+    \item Literature review of existing Kiswahili NLP systems
+    \item Analysis of Mozilla Common Voice dataset characteristics
+    \item Identification of technical constraints and opportunities
+    \item Definition of functional and non-functional requirements
+\end{enumerate}
+
+\subsubsection{Functional Requirements}
+\begin{itemize}
+    \item \textbf{FR1}: Accept audio input in multiple formats (WAV, MP3, etc.)
+    \item \textbf{FR2}: Transcribe Kiswahili speech to text with acceptable accuracy
+    \item \textbf{FR3}: Perform sentiment analysis on transcribed text
+    \item \textbf{FR4}: Generate summaries of longer transcriptions
+    \item \textbf{FR5}: Support both file upload and live recording
+    \item \textbf{FR6}: Provide confidence scores for predictions
+    \item \textbf{FR7}: Display processing time and audio duration metrics
+\end{itemize}
+
+\subsubsection{Non-Functional Requirements}
+\begin{itemize}
+    \item \textbf{NFR1}: Process audio files within reasonable time (< 30 seconds for 10-second audio)
+    \item \textbf{NFR2}: Maintain model accuracy above 70\% for ASR
+    \item \textbf{NFR3}: Provide responsive web interface
+    \item \textbf{NFR4}: Support concurrent user requests
+    \item \textbf{NFR5}: Ensure system scalability
+    \item \textbf{NFR6}: Maintain API documentation
+\end{itemize}
+
+\subsection{Feasibility Study}
+A feasibility study was conducted to assess the viability of the proposed system across multiple dimensions:
+
+\begin{table}[H]
+\centering
+\caption{Feasibility Analysis}
+\label{tab:feasibility}
+\begin{tabular}{@{}lp{10cm}@{}}
+\toprule
+\textbf{Dimension} & \textbf{Assessment} \\ \midrule
+Technical & Feasible - Pre-trained models available (Wav2Vec2, DistilBERT), adequate computational resources \\
+Data & Feasible - Mozilla Common Voice provides 18,629 Kiswahili samples \\
+Economic & Feasible - Open-source tools and free datasets, minimal infrastructure cost \\
+Operational & Feasible - System can be deployed on standard web servers \\
+Time & Feasible - 12-week development timeline adequate for MVP \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{System Design}
+\subsection{System Architecture}
+The system follows a microservices-inspired architecture with clear separation between the machine learning pipeline and the web application layer. Figure \ref{fig:system_architecture} presents the high-level system architecture.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/system_architecture.tex}
+    \caption{High-Level System Architecture}
+    \label{fig:system_architecture}
+\end{figure}
+
+The architecture consists of three main layers:
+
+\begin{enumerate}
+    \item \textbf{Presentation Layer}: Web interface for user interaction
+    \item \textbf{Application Layer}: FastAPI backend handling requests and orchestrating ML models
+    \item \textbf{Model Layer}: Pre-trained and fine-tuned ML models for ASR, sentiment analysis, and summarization
+\end{enumerate}
+
+\subsection{Data Flow Design}
+Figure \ref{fig:data_flow} illustrates the complete data flow from audio input to final output.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/data_flow.tex}
+    \caption{System Data Flow Diagram}
+    \label{fig:data_flow}
+\end{figure}
+
+\subsection{Machine Learning Pipeline Design}
+The ML pipeline consists of multiple stages as shown in Figure \ref{fig:ml_pipeline}.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/ml_pipeline.tex}
+    \caption{Machine Learning Pipeline Architecture}
+    \label{fig:ml_pipeline}
+\end{figure}
+
+\subsubsection{ASR Component Design}
+The ASR component utilizes the Wav2Vec2 architecture \cite{baevski2020wav2vec}, which employs self-supervised learning on raw audio waveforms. The model architecture consists of:
+
+\begin{itemize}
+    \item Feature encoder: 7 convolutional layers
+    \item Transformer encoder: 12 layers with 768 hidden dimensions
+    \item CTC (Connectionist Temporal Classification) head for sequence prediction
+\end{itemize}
+
+\subsubsection{Sentiment Analysis Component Design}
+The sentiment analysis component uses DistilBERT \cite{sanh2019distilbert}, a distilled version of BERT with:
+
+\begin{itemize}
+    \item 6 transformer layers (vs. 12 in BERT)
+    \item 66M parameters (40\% reduction)
+    \item 97\% of BERT's performance retained
+\end{itemize}
+
+The model was fine-tuned using pseudo-labeling methodology (detailed in Section \ref{sec:pseudo_labeling}).
+
+\subsection{API Design}
+The REST API follows OpenAPI 3.0 specification with the following endpoints:
+
+\begin{table}[H]
+\centering
+\caption{API Endpoint Specifications}
+\label{tab:api_endpoints}
+\begin{tabular}{@{}llp{6cm}@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Method} & \textbf{Description} \\ \midrule
+/analyze & POST & Main endpoint for audio analysis \\
+/process-audio & POST & Alias for /analyze endpoint \\
+/health & GET & Health check endpoint \\
+/docs & GET & Interactive API documentation \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Database Design}
+While the current implementation does not require persistent storage, the system design accommodates future database integration for:
+
+\begin{itemize}
+    \item User session management
+    \item Analysis history storage
+    \item Model performance logging
+    \item Usage analytics
+\end{itemize}
+
+\section{Implementation}
+\subsection{Development Environment}
+The system was developed using the following tools and technologies:
+
+\begin{table}[H]
+\centering
+\caption{Development Tools and Technologies}
+\label{tab:dev_tools}
+\begin{tabular}{@{}llp{5cm}@{}}
+\toprule
+\textbf{Category} & \textbf{Tool/Technology} & \textbf{Purpose} \\ \midrule
+Programming Language & Python 3.10 & Core development \\
+ML Framework & PyTorch 2.0 & Model training and inference \\
+Transformers & Hugging Face Transformers & Pre-trained models \\
+Web Framework & FastAPI & REST API development \\
+Frontend & HTML/CSS/JavaScript & User interface \\
+Audio Processing & Librosa & Audio preprocessing \\
+Development Environment & Jupyter Notebook & Experimentation \\
+Version Control & Git & Code management \\
+Package Management & Conda/Pip & Dependency management \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Preparation Methodology}
+\subsubsection{Dataset Selection}
+The Mozilla Common Voice Kiswahili dataset was selected based on:
+
+\begin{itemize}
+    \item Availability: Open-source and freely accessible
+    \item Size: 18,629 validated audio samples
+    \item Quality: Community-validated transcriptions
+    \item Diversity: Multiple speakers and recording conditions
+\end{itemize}
+
+\subsubsection{Data Preprocessing Pipeline}
+The data preprocessing follows a systematic pipeline:
+
+\begin{algorithm}[H]
+\caption{Audio Preprocessing Pipeline}
+\begin{algorithmic}[1]
+\Procedure{PreprocessAudio}{$audio\_file$}
+    \State $waveform \gets$ LoadAudio($audio\_file$)
+    \State $waveform \gets$ Resample($waveform$, target\_sr=16000)
+    \State $waveform \gets$ Normalize($waveform$)
+    \State $features \gets$ ExtractFeatures($waveform$)
+    \State \Return $features$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Model Development Methodology}
+\subsubsection{Transfer Learning Approach}
+The research employs transfer learning to leverage pre-trained models:
+
+\begin{enumerate}
+    \item \textbf{ASR Model}: Fine-tuned RareElf/swahili-wav2vec2-asr
+    \item \textbf{Sentiment Model}: Fine-tuned DistilBERT with pseudo-labeling
+    \item \textbf{Summarization Model}: Pre-trained BART-large-CNN
+\end{enumerate}
+
+\subsubsection{Pseudo-Labeling Methodology}
+\label{sec:pseudo_labeling}
+Due to the absence of sentiment labels in the Mozilla Common Voice dataset, a pseudo-labeling approach was adopted:
+
+\begin{algorithm}[H]
+\caption{Pseudo-Labeling for Sentiment Analysis}
+\begin{algorithmic}[1]
+\Procedure{PseudoLabel}{$kiswahili\_texts$}
+    \State $translator \gets$ LoadModel("NLLB-200-distilled-600M")
+    \State $sentiment\_classifier \gets$ LoadModel("English-Sentiment")
+    \For{$text$ in $kiswahili\_texts$}
+        \State $english\_text \gets translator$.Translate($text$, src="sw", tgt="en")
+        \State $sentiment\_label \gets sentiment\_classifier$.Predict($english\_text$)
+        \State $pseudo\_labels$.append($sentiment\_label$)
+    \EndFor
+    \State \Return $pseudo\_labels$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+The pseudo-labeling process is illustrated in Figure \ref{fig:pseudo_labeling}.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/pseudo_labeling.tex}
+    \caption{Pseudo-Labeling Workflow}
+    \label{fig:pseudo_labeling}
+\end{figure}
+
+\subsubsection{Model Training Process}
+The pseudo-labeling process follows these steps:
+
+\begin{enumerate}
+    \item Data splitting: 80\% training, 10\% validation, 10\% test
+    \item Hyperparameter tuning using validation set
+    \item Model training with early stopping
+    \item Performance evaluation on test set
+    \item Model serialization and storage
+\end{enumerate}
+
+Training hyperparameters:
+
+\begin{table}[H]
+\centering
+\caption{Model Training Hyperparameters}
+\label{tab:hyperparameters}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Justification} \\ \midrule
+Learning Rate & 2e-5 & Standard for fine-tuning transformers \\
+Batch Size & 16 & Balance between memory and convergence \\
+Epochs & 3 & Prevent overfitting \\
+Optimizer & AdamW & Improved weight decay handling \\
+Warmup Steps & 500 & Gradual learning rate increase \\
+Max Sequence Length & 128 & Accommodate typical sentence length \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{System Implementation}
+\subsubsection{Backend Implementation}
+The backend was implemented using FastAPI framework with the following structure:
+
+\begin{verbatim}
+app/
+|-- main.py              # Main application entry point
+|-- models/              # ML model storage
+|   `-- distilbert_sentiment_final/
+|-- static/              # Frontend files
+|   `-- index.html
+`-- requirements.txt     # Dependencies
+\end{verbatim}
+
+Key implementation decisions:
+
+\begin{itemize}
+    \item \textbf{Model Loading}: Models loaded at startup to reduce latency
+    \item \textbf{CORS Middleware}: Enable cross-origin requests
+    \item \textbf{Error Handling}: Comprehensive exception handling
+    \item \textbf{Async Processing}: Asynchronous request handling
+\end{itemize}
+
+\subsubsection{Frontend Implementation}
+The frontend provides:
+
+\begin{itemize}
+    \item Drag-and-drop file upload
+    \item Live audio recording using MediaRecorder API
+    \item Real-time processing feedback
+    \item Results visualization
+\end{itemize}
+
+\subsubsection{Integration}
+Figure \ref{fig:component_integration} shows how different components integrate.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/component_integration.tex}
+    \caption{Component Integration Diagram}
+    \label{fig:component_integration}
+\end{figure}
+
+\section{Testing and Validation}
+\subsection{Testing Methodology}
+A comprehensive testing strategy was employed covering multiple levels:
+
+\subsubsection{Unit Testing}
+Individual components tested in isolation:
+
+\begin{itemize}
+    \item Audio preprocessing functions
+    \item Model inference functions
+    \item API endpoint handlers
+\end{itemize}
+
+\subsubsection{Integration Testing}
+Testing component interactions:
+
+\begin{itemize}
+    \item Audio upload to transcription pipeline
+    \item Transcription to sentiment analysis pipeline
+    \item End-to-end API workflow
+\end{itemize}
+
+\subsubsection{System Testing}
+Complete system testing scenarios:
+
+\begin{table}[H]
+\centering
+\caption{System Test Cases}
+\label{tab:test_cases}
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Test Case} & \textbf{Description} \\ \midrule
+TC1 & Upload WAV file and verify complete analysis \\
+TC2 & Record live audio and verify processing \\
+TC3 & Test with various audio durations (5s, 30s, 60s) \\
+TC4 & Test with different audio quality levels \\
+TC5 & Concurrent user request handling \\
+TC6 & Error handling for invalid inputs \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Model Validation Methodology}
+\subsubsection{Performance Metrics}
+Models evaluated using standard metrics:
+
+\begin{itemize}
+    \item \textbf{ASR}: Word Error Rate (WER), Character Error Rate (CER)
+    \item \textbf{Sentiment}: Accuracy, Precision, Recall, F1-Score
+    \item \textbf{System}: Latency, Throughput
+\end{itemize}
+
+\subsubsection{Validation Approach}
+\begin{enumerate}
+    \item \textbf{Hold-out Validation}: 10\% test set reserved
+    \item \textbf{Cross-validation}: K-fold validation for sentiment model
+    \item \textbf{Real-world Testing}: Manual testing with new audio samples
+\end{enumerate}
+
+\subsection{Performance Benchmarking}
+System performance measured across dimensions:
+
+\begin{table}[H]
+\centering
+\caption{Performance Benchmarking Metrics}
+\label{tab:performance_metrics}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Metric} & \textbf{Target} & \textbf{Achieved} \\ \midrule
+ASR WER & < 30\% & 13.60\% \\
+ASR CER & < 15\% & 8.85\% \\
+Sentiment F1-Score & > 0.60 & 0.6125 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results and Findings}
+\subsection{Data Understanding and Preprocessing Results}
+The Mozilla Common Voice Kiswahili dataset analysis revealed:
+
+\begin{itemize}
+    \item \textbf{Dataset Size}: 18,629 validated audio samples
+    \item \textbf{Audio Duration}: Mean duration of 4.8 seconds per sample
+    \item \textbf{Gender Distribution}: 68\% male, 32\% female speakers
+    \item \textbf{Age Distribution}: Majority in 20-40 age range
+    \item \textbf{Quality Metrics}: 85\% samples with positive validation scores
+\end{itemize}
+
+Statistical testing revealed significant demographic imbalances:
+
+\begin{table}[H]
+\centering
+\caption{Demographic Distribution Analysis}
+\label{tab:demographics}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Demographic} & \textbf{Category} & \textbf{Percentage} \\ \midrule
+\multirow{2}{*}{Gender} & Male & 68\% \\
+                        & Female & 32\% \\
+\midrule
+\multirow{4}{*}{Age} & 20-29 & 42\% \\
+                     & 30-39 & 35\% \\
+                     & 40-49 & 15\% \\
+                     & Other & 8\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{ASR Model Performance}
+The Wav2Vec2 ASR model achieved strong performance on Kiswahili speech recognition:
+
+\begin{table}[H]
+\centering
+\caption{ASR Model Performance Metrics}
+\label{tab:asr_results}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\ \midrule
+Overall Word Error Rate (WER) & 13.60\% \\
+Overall Character Error Rate (CER) & 8.85\% \\
+Demographic Parity Difference (Gender) & 3.99\% \\
+ANOVA p-value (Gender) & 0.0072 \\
+Cohen's d (Effect Size) & 0.298 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The WER of 13.60\% indicates that the model correctly transcribes approximately 86.4\% of words, which exceeds the target threshold of 70\% accuracy. The low CER of 8.85\% demonstrates strong character-level recognition.
+
+\subsubsection{Bias Analysis}
+Statistical analysis revealed gender-based performance disparities:
+
+\begin{itemize}
+    \item \textbf{ANOVA Test}: Significant difference in WER across gender groups (p = 0.0072)
+    \item \textbf{Effect Size}: Cohen's d = 0.298 indicates a small-to-medium practical effect
+    \item \textbf{Demographic Parity}: 3.99\% difference suggests relatively fair performance
+\end{itemize}
+
+These findings indicate statistically significant but practically small performance differences between demographic groups, suggesting the model maintains reasonable fairness.
+
+\subsection{Sentiment Analysis Results}
+The fine-tuned DistilBERT model was trained using pseudo-labeling:
+
+\begin{table}[H]
+\centering
+\caption{Sentiment Analysis Performance}
+\label{tab:sentiment_results}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\ \midrule
+F1-Score (Weighted) & 0.6125 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The pseudo-labeling approach enabled sentiment analysis for Kiswahili text despite the absence of labeled training data. The model was trained by translating Kiswahili text to English using NLLB-200-distilled-600M, obtaining sentiment labels from an English classifier, then fine-tuning DistilBERT on the original Kiswahili text with these pseudo-labels.
+
+\subsection{Bias Quantification Results}
+Logistic regression analysis was performed to quantify predictive bias in the ASR system. The analysis examined the relationship between demographic features and ASR success rates using the logistic regression objective:
+
+$$\min_{\beta} -\sum_{i=1}^{n} \left[ y_i \log(p_i) + (1-y_i)\log(1-p_i) \right]$$
+
+Where $p_i = \sigma(\beta^T x_i)$ and $\sigma$ is the sigmoid function.
+
+\subsubsection{Fairness Metrics Formulation}
+
+\textbf{Demographic Parity Difference (DPD):}
+$$DPD = |P(\hat{Y}=1|D=d_1) - P(\hat{Y}=1|D=d_2)|$$
+
+\textbf{Equalized Odds Difference (EOD):}
+$$EOD = |P(\hat{Y}=1|Y=1,D=d_1) - P(\hat{Y}=1|Y=1,D=d_2)|$$
+
+The analysis quantified fairness gaps across demographic groups, with coefficients and odds ratios computed for gender, age, and validation score features.
+
+\subsection{Topic Modeling Results}
+Unsupervised KMeans clustering was applied to discover thematic patterns in Kiswahili transcriptions using the objective:
+
+$$\min_{C} \sum_{i=1}^{k} \sum_{x \in C_i} ||x - \mu_i||^2$$
+
+Where $C_i$ is cluster $i$ and $\mu_i$ is the centroid of cluster $i$.
+
+\subsubsection{Silhouette Score}
+Cluster quality was evaluated using the silhouette score:
+
+$$s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$$
+
+Where:
+\begin{itemize}
+    \item $a(i)$: Mean intra-cluster distance
+    \item $b(i)$: Mean nearest-cluster distance
+\end{itemize}
+
+The optimal number of clusters was determined through elbow method and silhouette analysis. The clustering identified distinct thematic domains in the transcriptions, with TF-IDF vectorization used for feature extraction.
+
+\subsection{System Performance}
+The end-to-end system was deployed using FastAPI and evaluated for inference performance. The system successfully processes Kiswahili audio through the complete pipeline from speech recognition to sentiment analysis.
+
+\subsection{Model Optimization Results}
+Model quantization and optimization techniques were explored in Notebook 06 for deployment optimization, focusing on reducing model size while maintaining accuracy for edge deployment scenarios.
+
+\section{Deployment Methodology}
+\subsection{Deployment Architecture}
+The system deployment follows a containerized approach for portability and scalability.
+
+\begin{figure}[H]
+    \centering
+    \input{diagrams/deployment_architecture.tex}
+    \caption{Deployment Architecture}
+    \label{fig:deployment_architecture}
+\end{figure}
+
+\subsection{Deployment Process}
+\begin{enumerate}
+    \item Environment setup and dependency installation
+    \item Model artifact deployment
+    \item Application server configuration
+    \item Health check and monitoring setup
+    \item Load testing and optimization
+\end{enumerate}
+
+\subsection{Monitoring and Maintenance}
+Post-deployment monitoring includes:
+
+\begin{itemize}
+    \item API endpoint health checks
+    \item Model inference latency tracking
+    \item Error rate monitoring
+    \item Resource utilization metrics
+\end{itemize}
+
+\section{Ethical Considerations}
+\subsection{Data Privacy}
+\begin{itemize}
+    \item No personal data stored permanently
+    \item Audio files deleted after processing
+    \item No user tracking implemented
+\end{itemize}
+
+\subsection{Model Bias}
+\begin{itemize}
+    \item Acknowledged potential bias in training data
+    \item Diverse dataset used to minimize bias
+    \item Continuous monitoring for biased predictions
+\end{itemize}
+
+\section{Limitations of Methodology}
+The adopted methodology has the following limitations:
+
+\begin{enumerate}
+    \item \textbf{Pseudo-labeling Accuracy}: Sentiment labels depend on translation quality
+    \item \textbf{Dataset Size}: Limited to 18,629 samples
+    \item \textbf{Computational Resources}: Training limited by available GPU resources
+    \item \textbf{Real-time Performance}: Current implementation not optimized for real-time streaming
+    \item \textbf{Language Variants}: May not generalize to all Kiswahili dialects
+\end{enumerate}
+
+\section{Summary}
+This chapter presented the comprehensive methodology employed in developing the Kiswahili Speech Analytics System. The approach combines software engineering best practices with machine learning experimentation, following an Agile development process. The methodology covers all phases from requirements analysis through deployment, with particular emphasis on the novel pseudo-labeling approach for sentiment analysis. The next chapter presents the implementation details and results obtained from this methodology.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

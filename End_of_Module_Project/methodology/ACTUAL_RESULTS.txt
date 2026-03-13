@@ -1,0 +1,24 @@
+ACTUAL RESULTS FROM NOTEBOOKS - VERIFIED VALUES ONLY
+
+Notebook 02 - ASR Performance:
+- Overall WER: 0.1360 (13.60%)
+- Overall CER: 0.0885 (8.85%) [from asr_metrics.json]
+- DPD Gender: 0.03992740471869327 (3.99%)
+- ANOVA p-value: 0.007182199397875449
+- Cohen's d: 0.2982806037196017
+
+Notebook 04 - Sentiment Analysis:
+- F1-Score: 0.6125 (NOT 0.89 - this was placeholder)
+
+Notebook 03 - Bias Quantification:
+- Need to verify actual coefficients from notebook output
+
+Notebook 05 - Topic Modeling:
+- Need to verify actual cluster metrics from notebook output
+
+Notebook 06 - Model Optimization:
+- Need to verify actual quantization results
+
+ACTION REQUIRED:
+Replace all placeholder values in methodology with actual verified values from notebook outputs.
+Remove any metrics not actually computed in notebooks.

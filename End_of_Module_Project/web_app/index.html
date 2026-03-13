@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tubonge - Speech Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="toast" class="toast"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="#F59E0B" stroke-width="2"/>
+                    <path d="M12 10 L12 22 M16 8 L16 24 M20 12 L20 20" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="logo-text">Tubonge</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#studio" class="nav-item active" data-page="studio">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 3C6.13 3 3 6.13 3 10C3 13.87 6.13 17 10 17C13.87 17 17 13.87 17 10C17 6.13 13.87 3 10 3ZM10 15C7.24 15 5 12.76 5 10C5 7.24 7.24 5 10 5C12.76 5 15 7.24 15 10C15 12.76 12.76 15 10 15Z"/>
+                </svg>
+                <span data-i18n="nav_studio">Studio</span>
+            </a>
+            <a href="#history" class="nav-item" data-page="history">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2C5.58 2 2 5.58 2 10C2 14.42 5.58 18 10 18C14.42 18 18 14.42 18 10C18 5.58 14.42 2 10 2ZM10 16C6.69 16 4 13.31 4 10C4 6.69 6.69 4 10 4C13.31 4 16 6.69 16 10C16 13.31 13.31 16 10 16ZM10.5 6H9V11L13.25 13.52L14 12.27L10.5 10.25V6Z"/>
+                </svg>
+                <span data-i18n="nav_history">History</span>
+            </a>
+            <a href="#about" class="nav-item" data-page="about">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2C5.58 2 2 5.58 2 10C2 14.42 5.58 18 10 18C14.42 18 18 14.42 18 10C18 5.58 14.42 2 10 2ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z"/>
+                </svg>
+                <span data-i18n="nav_about">About</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="footer-links">
+                <a href="https://github.com/Kevinobote/Predictive-and-Optimisation-Analytics/tree/main/End_of_Module_Project/web_app" target="_blank" rel="noopener noreferrer" class="footer-link" title="View on GitHub">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="footer-link" title="API Documentation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                </a>
+            </div>
+            <p class="footer-text">© 2026 Tubonge</p>
+            <p class="footer-subtext">Powered by <a href="https://guild-code.com/" target="_blank" rel="noopener noreferrer" class="guild-link">Guild Code</a></p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="studio-page" class="page active">
+            <header class="page-header">
+                <div class="header-content">
+                    <h1 class="page-title" data-i18n="page_audio_studio">Audio Studio</h1>
+                    <div class="language-selector">
+                        <label for="language" data-i18n="language_label">Language:</label>
+                        <select id="language" class="language-select">
+                            <option value="en" data-i18n="language_english">English</option>
+                            <option value="sw" data-i18n="language_swahili">Kiswahili</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <div id="idle-state" class="state-container">
+                <div class="hero-banner">
+                    <div class="hero-content">
+                        <h2 class="hero-title" data-i18n="hero_title">Transform Speech into Insights</h2>
+                        <p class="hero-subtitle" data-i18n="hero_subtitle">Record or upload audio for instant transcription and analysis</p>
+                    </div>
+                    <div class="waveform-bg">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+
+                <div class="input-cards">
+                    <div class="input-card">
+                        <div class="card-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <circle cx="24" cy="24" r="20" stroke="#F59E0B" stroke-width="2"/>
+                                <circle cx="24" cy="24" r="8" fill="#F59E0B"/>
+                            </svg>
+                        </div>
+                        <h3 class="card-title" data-i18n="card_recording_title">Live Recording</h3>
+                        <p class="card-description" data-i18n="card_recording_desc">Record audio directly from your microphone</p>
+                        <button id="start-recording-btn" class="primary-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2C8.34 2 7 3.34 7 5V10C7 11.66 8.34 13 10 13C11.66 13 13 11.66 13 10V5C13 3.34 11.66 2 10 2ZM15 10C15 12.76 12.76 15 10 15C7.24 15 5 12.76 5 10H3C3 13.53 5.61 16.43 9 16.92V20H11V16.92C14.39 16.43 17 13.53 17 10H15Z"/>
+                            </svg>
+                            <span data-i18n="btn_start_recording">Start Recording</span>
+                        </button>
+                    </div>
+
+                    <div class="input-card">
+                        <div class="card-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <path d="M24 8L32 16H26V28H22V16H16L24 8Z" fill="#0D9488"/>
+                                <path d="M36 32V36H12V32H8V36C8 38.21 9.79 40 12 40H36C38.21 40 40 38.21 40 36V32H36Z" fill="#0D9488"/>
+                            </svg>
+                        </div>
+                        <h3 class="card-title" data-i18n="card_upload_title">Upload Audio</h3>
+                        <p class="card-description" data-i18n="card_upload_desc">Drag & drop or click to upload audio files</p>
+                        <div id="drop-zone" class="drop-zone">
+                            <input type="file" id="file-input" accept="audio/*" hidden>
+                            <p class="drop-text" data-i18n="drop_text">Drop audio file here or click to browse</p>
+                            <p class="drop-subtext" data-i18n="drop_subtext">Supports MP3, WAV, OGG, M4A, FLAC, AAC (Max 100MB)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h4 class="feature-title" data-i18n="feature_transcription_title">Accurate Transcription</h4>
+                        <p class="feature-text" data-i18n="feature_transcription_text">State-of-the-art ASR with 95%+ accuracy</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💭</div>
+                        <h4 class="feature-title" data-i18n="feature_sentiment_title">Sentiment Analysis</h4>
+                        <p class="feature-text" data-i18n="feature_sentiment_text">Understand emotional tone and context</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h4 class="feature-title" data-i18n="feature_analytics_title">Deep Analytics</h4>
+                        <p class="feature-text" data-i18n="feature_analytics_text">Comprehensive metrics and insights</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h4 class="feature-title" data-i18n="feature_fast_title">Lightning Fast</h4>
+                        <p class="feature-text" data-i18n="feature_fast_text">Process audio in seconds</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recording-state" class="state-container hidden">
+                <div class="recording-container">
+                    <div class="recording-header">
+                        <div class="recording-indicator">
+                            <span class="recording-dot"></span>
+                            <span class="recording-text" data-i18n="recording_indicator">Recording</span>
+                        </div>
+                        <div id="timer" class="timer">00:00</div>
+                    </div>
+                    
+                    <div class="waveform-container">
+                        <div class="waveform-bars">
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                        </div>
+                    </div>
+
+                    <button id="stop-recording-btn" class="stop-btn">
+                        <span class="ripple"></span>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <rect x="8" y="8" width="16" height="16" rx="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="processing-state" class="state-container hidden">
+                <div class="processing-container">
+                    <div class="spinner"></div>
+                    <h3 class="processing-title" data-i18n="processing_title">Processing Audio</h3>
+                    <p id="processing-step" class="processing-step">Analyzing audio quality...</p>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <p id="file-name" class="file-name"></p>
+                </div>
+            </div>
+
+            <div id="results-state" class="state-container hidden">
+                <div class="results-header">
+                    <div class="success-banner">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                        <span data-i18n="results_banner">Analysis Complete!</span>
+                    </div>
+                    <button id="new-analysis-btn" class="secondary-btn" data-i18n="btn_new_analysis">New Analysis</button>
+                </div>
+
+                <div class="audio-player-card">
+                    <audio id="audio-player" controls></audio>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_duration">Duration</div><div id="metric-duration" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_processing">Processing Time</div><div id="metric-processing" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_speed">Processing Speed</div><div id="metric-speed" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_confidence">ASR Confidence</div><div id="metric-confidence" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_words">Word Count</div><div id="metric-words" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_chars">Characters</div><div id="metric-chars" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_rate">Speaking Rate</div><div id="metric-rate" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_quality">Audio Quality</div><div id="metric-quality" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_language">Language</div><div id="metric-language" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_sentences">Sentences</div><div id="metric-sentences" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_paragraphs">Paragraphs</div><div id="metric-paragraphs" class="metric-value">--</div></div>
+                    <div class="metric-card"><div class="metric-label" data-i18n="metric_source">Source Type</div><div id="metric-source" class="metric-value">--</div></div>
+                </div>
+
+                <div class="sentiment-card">
+                    <h3 class="section-title" data-i18n="section_sentiment">Sentiment Analysis</h3>
+                    <div class="sentiment-content">
+                        <div class="sentiment-main">
+                            <div id="sentiment-emoji" class="sentiment-emoji">😊</div>
+                            <div class="sentiment-info">
+                                <div id="sentiment-label" class="sentiment-label">Positive</div>
+                                <div id="sentiment-confidence" class="sentiment-confidence">85%</div>
+                            </div>
+                        </div>
+                        <div class="sentiment-chart">
+                            <div class="chart-bar positive">
+                                <div id="positive-bar" class="bar-fill" style="width: 70%"></div>
+                                <span class="bar-label" data-i18n="sentiment_positive">Positive</span>
+                                <span id="positive-percent" class="bar-percent">70%</span>
+                            </div>
+                            <div class="chart-bar neutral">
+                                <div id="neutral-bar" class="bar-fill" style="width: 20%"></div>
+                                <span class="bar-label" data-i18n="sentiment_neutral">Neutral</span>
+                                <span id="neutral-percent" class="bar-percent">20%</span>
+                            </div>
+                            <div class="chart-bar negative">
+                                <div id="negative-bar" class="bar-fill" style="width: 10%"></div>
+                                <span class="bar-label" data-i18n="sentiment_negative">Negative</span>
+                                <span id="negative-percent" class="bar-percent">10%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-panel">
+                    <h3 class="section-title" data-i18n="section_summary">Summary</h3>
+                    <p id="summary-text" class="summary-text"></p>
+                    <div class="keywords-container">
+                        <h4 class="keywords-title" data-i18n="section_keywords">Key Topics</h4>
+                        <div id="keywords-list" class="keywords-list"></div>
+                    </div>
+                </div>
+
+                <div class="transcript-panel">
+                    <h3 class="section-title" data-i18n="section_transcript">Full Transcript</h3>
+                    <div id="transcript-text" class="transcript-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="history-page" class="page hidden">
+            <header class="page-header">
+                <h1 class="page-title" data-i18n="page_history">Analysis History</h1>
+                <button id="clear-history-btn" class="secondary-btn" data-i18n="btn_clear_history">Clear History</button>
+            </header>
+            <div id="history-container" class="history-container"></div>
+        </div>
+
+        <div id="about-page" class="page hidden">
+            <header class="page-header">
+                <h1 class="page-title" data-i18n="page_about">About Tubonge</h1>
+            </header>
+            <div class="about-content">
+                <div class="about-section">
+                    <h2 data-i18n="about_title_1">Advanced Speech Analytics</h2>
+                    <p data-i18n="about_text_1">Tubonge leverages state-of-the-art AI models to provide accurate speech-to-text transcription and comprehensive audio analysis.</p>
+                </div>
+                <div class="about-section">
+                    <h3 data-i18n="about_title_2">Key Features</h3>
+                    <ul class="feature-list">
+                        <li data-i18n="about_feature_1">High-accuracy automatic speech recognition (ASR)</li>
+                        <li data-i18n="about_feature_2">Real-time sentiment analysis</li>
+                        <li data-i18n="about_feature_3">Comprehensive audio metrics</li>
+                        <li data-i18n="about_feature_4">Multi-language support (English & Kiswahili)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script src="translations.js"></script>
+</body>
+</html>
